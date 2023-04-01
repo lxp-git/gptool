@@ -800,10 +800,10 @@ packages:
     dependency: "direct main"
     description:
       name: sqflite_common_ffi_web
-      sha256: "1138921cbe2aab9cbe2268f73b5fa27b2b60e390d5af031d77fc4ba8771fed98"
+      sha256: a92f005c3e1e9f95d2fcdb1ad2a9df50ede7d0244986da1220e8d6ee28ef4e92
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.3+1"
+    version: "0.3.3+2"
   sqlite3:
     dependency: transitive
     description:

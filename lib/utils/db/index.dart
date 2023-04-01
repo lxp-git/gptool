@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:path/path.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 
 const currentDatabaseVersion = 1;
 
@@ -13,10 +14,9 @@ class AppDatabase {
   AppDatabase._internal();
   factory AppDatabase() => _instance;
   Future<void> open() async {
-    if (!kIsWeb) {
-      sqfliteFfiInit();
-    }
-    if (Platform.isWindows || Platform.isLinux) {
+    if (kIsWeb) {
+      databaseFactory = databaseFactoryFfiWeb;
+    } else if (Platform.isWindows || Platform.isLinux) {
       sqfliteFfiInit();
       databaseFactory = databaseFactoryFfi;
     }

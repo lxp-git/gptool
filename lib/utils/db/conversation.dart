@@ -14,8 +14,7 @@ class ConversationDBProvider {
 
   Future<Conversation> insert(Conversation conversation) async {
     final map = conversation.toJson();
-    await AppDatabase().db.insert(table, map);
-    return conversation;
+    return conversation.copyWith(id: await AppDatabase().db.insert(table, map));
   }
 
   Future<Conversation?> find(int id) async {
