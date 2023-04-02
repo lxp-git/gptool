@@ -41,11 +41,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
   // List<Message> _messageList = [];
 
   @override
-  void initState() {
-    // KeyValueStoreHelper().init().then((value) {
-    //   KeyValueStoreHelper().secretKey = "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";
-    // });
-  }
+  void initState() {}
 
   _send() async {
     ref.read(currentConversationMessagesProvider.notifier).sendMessage(_draft);
