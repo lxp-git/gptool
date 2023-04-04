@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gptool/models/message.dart';
 import 'package:gptool/pages/conversation.dart';
 
-import '../../utils/key_value_store_helper.dart';
 import 'message.dart';
 
 class ExampleDestination {
@@ -33,9 +32,6 @@ class MyHomePage extends ConsumerStatefulWidget {
 }
 
 class _MyHomePageState extends ConsumerState<MyHomePage> {
-  final TextEditingController _textEditingController = TextEditingController();
-  final TextEditingController _apiKeyTextEditingController =
-      TextEditingController(text: KeyValueStoreHelper().secretKey);
   String _draft = "";
   TextEditingController editingController = TextEditingController();
   // List<Message> _messageList = [];
@@ -167,7 +163,9 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
                     child: Container(
                   padding: const EdgeInsets.only(left: 16),
                   child: TextField(
-                    controller: _textEditingController,
+                    controller: ref
+                        .read(currentConversationMessagesProvider.notifier)
+                        .textEditingController,
                     onChanged: (value) {
                       setState(() {
                         _draft = value;
@@ -207,7 +205,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
     // return showNavigationDrawer
     //     ? buildLargeScreenScaffold(context)
     //     : buildBottomBarScaffold();
-    final messageList = ref.watch(currentConversationMessagesProvider);
     return Scaffold(
       drawer: showNavigationDrawer
           ? null

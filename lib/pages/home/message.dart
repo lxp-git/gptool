@@ -18,36 +18,61 @@ class _MessageItemState extends ConsumerState<MessageItem> {
   TextEditingController editingController = TextEditingController();
 
   Widget markdown(Message message) {
-    return MarkdownBody(
-        data: message.content,
-        contextMenuBuilder: (context, editableTextState) =>
-            AdaptiveTextSelectionToolbar.buttonItems(
-              anchors: editableTextState.contextMenuAnchors,
-              buttonItems: <ContextMenuButtonItem>[
-                ContextMenuButtonItem(
-                    onPressed: () {
-                      setState(() {
-                        editingController.text = message.content;
-                        editingMessageId = message.id;
-                      });
-                    },
-                    type: ContextMenuButtonType.custom,
-                    label: "Edit"),
-                ContextMenuButtonItem(
-                  onPressed: () {
-                    editableTextState
-                        .copySelection(SelectionChangedCause.toolbar);
-                  },
-                  type: ContextMenuButtonType.copy,
+    return editingMessageId == message.id
+        ? Column(
+            children: [
+              TextField(
+                  maxLines: 5, minLines: 1, controller: editingController),
+              Row(
+                children: [
+                  TextButton(onPressed: () {}, child: const Text("Save")),
+                  TextButton(
+                      onPressed: () {
+                        setState(() {
+                          editingMessageId = null;
+                        });
+                      },
+                      child: const Text("Cancel"))
+                ],
+              )
+            ],
+          )
+        : MarkdownBody(
+            data: message.content,
+            contextMenuBuilder: (context, editableTextState) =>
+                AdaptiveTextSelectionToolbar.buttonItems(
+                  anchors: editableTextState.contextMenuAnchors,
+                  buttonItems: <ContextMenuButtonItem>[
+                    ContextMenuButtonItem(
+                        onPressed: () {
+                          setState(() {
+                            editingController.text = message.content;
+                            editingMessageId = message.id;
+                          });
+                        },
+                        type: ContextMenuButtonType.custom,
+                        label: "Edit"),
+                    ContextMenuButtonItem(
+                      onPressed: () {
+                        editableTextState
+                            .copySelection(SelectionChangedCause.toolbar);
+                      },
+                      type: ContextMenuButtonType.copy,
+                    ),
+                    ContextMenuButtonItem(
+                        onPressed: () {
+                          ref
+                              .read(
+                                  currentConversationMessagesProvider.notifier)
+                              .updateMessage(
+                                  editingController.text, editingMessageId!);
+                        },
+                        type: ContextMenuButtonType.custom,
+                        label: "Delete"),
+                  ],
                 ),
-                ContextMenuButtonItem(
-                    onPressed: () {},
-                    type: ContextMenuButtonType.custom,
-                    label: "Delete"),
-              ],
-            ),
-        selectable: true,
-        shrinkWrap: true);
+            selectable: true,
+            shrinkWrap: true);
   }
 
   @override
@@ -60,19 +85,19 @@ class _MessageItemState extends ConsumerState<MessageItem> {
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                GestureDetector(
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(15))
-                                .copyWith(
-                                    bottomRight: const Radius.circular(0)),
-                        color: Theme.of(context).highlightColor),
-                    child: markdown(message),
-                  ),
-                  onLongPress: () {},
-                )
+                Flexible(flex: 1, child: Container()),
+                Flexible(
+                    flex: 4,
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(15))
+                                  .copyWith(
+                                      bottomRight: const Radius.circular(0)),
+                          color: Theme.of(context).highlightColor),
+                      child: markdown(message),
+                    ))
               ],
             )
           : Row(
@@ -87,30 +112,7 @@ class _MessageItemState extends ConsumerState<MessageItem> {
                                   .copyWith(
                                       bottomLeft: const Radius.circular(0)),
                           color: Theme.of(context).highlightColor),
-                      child: editingMessageId == message.id
-                          ? Column(
-                              children: [
-                                TextField(
-                                    maxLines: 5,
-                                    minLines: 1,
-                                    controller: editingController),
-                                Row(
-                                  children: [
-                                    TextButton(
-                                        onPressed: () {},
-                                        child: const Text("Save")),
-                                    TextButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            editingMessageId = null;
-                                          });
-                                        },
-                                        child: const Text("Cancel"))
-                                  ],
-                                )
-                              ],
-                            )
-                          : markdown(message),
+                      child: markdown(message),
                     )),
                 Flexible(flex: 1, child: Container())
               ],

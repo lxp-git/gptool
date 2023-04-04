@@ -37,13 +37,14 @@ class ConversationBody extends ConsumerWidget {
           },
           selectedIndex: selectedIndex,
           children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
-              child: Text(
-                'Actions',
-                style: Theme.of(context).textTheme.titleSmall,
-              ),
-            ),
+            const SizedBox(height: 16),
+            // Padding(
+            //   padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
+            //   child: Text(
+            //     'Actions',
+            //     style: Theme.of(context).textTheme.titleSmall,
+            //   ),
+            // ),
             TextButton(
               onPressed: () {},
               child: const ListTile(
@@ -52,7 +53,6 @@ class ConversationBody extends ConsumerWidget {
                 horizontalTitleGap: 0,
               ),
             ),
-
             Padding(
               padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
               child: Text(
@@ -82,7 +82,8 @@ class ConversationBody extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
               child: TextButton(
                 onPressed: () {
-                  Navigator.of(context).pushNamed("guide");
+                  Navigator.of(context)
+                      .pushNamedAndRemoveUntil("guide", (route) => false);
                 },
                 onLongPress: () {
                   print("onLongPress");

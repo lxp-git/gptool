@@ -39,8 +39,14 @@ mixin _$Message {
     required TResult Function(int? id, String content, String userId,
             int conversationId, DateTime createdAt)
         text,
-    required TResult Function(int? id, String content, String userId,
-            int conversationId, List<GPTResponse> extra, DateTime createdAt)
+    required TResult Function(
+            int? id,
+            int replyTo,
+            String content,
+            String userId,
+            int conversationId,
+            List<GPTResponse> extra,
+            DateTime createdAt)
         openAI,
   }) =>
       throw _privateConstructorUsedError;
@@ -49,7 +55,7 @@ mixin _$Message {
     TResult? Function(int? id, String content, String userId,
             int conversationId, DateTime createdAt)?
         text,
-    TResult? Function(int? id, String content, String userId,
+    TResult? Function(int? id, int replyTo, String content, String userId,
             int conversationId, List<GPTResponse> extra, DateTime createdAt)?
         openAI,
   }) =>
@@ -59,8 +65,8 @@ mixin _$Message {
     TResult Function(int? id, String content, String userId, int conversationId,
             DateTime createdAt)?
         text,
-    TResult Function(int? id, String content, String userId, int conversationId,
-            List<GPTResponse> extra, DateTime createdAt)?
+    TResult Function(int? id, int replyTo, String content, String userId,
+            int conversationId, List<GPTResponse> extra, DateTime createdAt)?
         openAI,
     required TResult orElse(),
   }) =>
@@ -264,8 +270,14 @@ class _$_text implements _text {
     required TResult Function(int? id, String content, String userId,
             int conversationId, DateTime createdAt)
         text,
-    required TResult Function(int? id, String content, String userId,
-            int conversationId, List<GPTResponse> extra, DateTime createdAt)
+    required TResult Function(
+            int? id,
+            int replyTo,
+            String content,
+            String userId,
+            int conversationId,
+            List<GPTResponse> extra,
+            DateTime createdAt)
         openAI,
   }) {
     return text(id, content, userId, conversationId, createdAt);
@@ -277,7 +289,7 @@ class _$_text implements _text {
     TResult? Function(int? id, String content, String userId,
             int conversationId, DateTime createdAt)?
         text,
-    TResult? Function(int? id, String content, String userId,
+    TResult? Function(int? id, int replyTo, String content, String userId,
             int conversationId, List<GPTResponse> extra, DateTime createdAt)?
         openAI,
   }) {
@@ -290,8 +302,8 @@ class _$_text implements _text {
     TResult Function(int? id, String content, String userId, int conversationId,
             DateTime createdAt)?
         text,
-    TResult Function(int? id, String content, String userId, int conversationId,
-            List<GPTResponse> extra, DateTime createdAt)?
+    TResult Function(int? id, int replyTo, String content, String userId,
+            int conversationId, List<GPTResponse> extra, DateTime createdAt)?
         openAI,
     required TResult orElse(),
   }) {
@@ -373,6 +385,7 @@ abstract class _$$_openAICopyWith<$Res> implements $MessageCopyWith<$Res> {
   @useResult
   $Res call(
       {int? id,
+      int replyTo,
       String content,
       String userId,
       int conversationId,
@@ -391,6 +404,7 @@ class __$$_openAICopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = freezed,
+    Object? replyTo = null,
     Object? content = null,
     Object? userId = null,
     Object? conversationId = null,
@@ -402,6 +416,10 @@ class __$$_openAICopyWithImpl<$Res>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int?,
+      replyTo: null == replyTo
+          ? _value.replyTo
+          : replyTo // ignore: cast_nullable_to_non_nullable
+              as int,
       content: null == content
           ? _value.content
           : content // ignore: cast_nullable_to_non_nullable
@@ -431,6 +449,7 @@ class __$$_openAICopyWithImpl<$Res>
 class _$_openAI implements _openAI {
   _$_openAI(
       {this.id,
+      required this.replyTo,
       required this.content,
       required this.userId,
       required this.conversationId,
@@ -445,6 +464,8 @@ class _$_openAI implements _openAI {
 
   @override
   final int? id;
+  @override
+  final int replyTo;
   @override
   final String content;
   @override
@@ -467,7 +488,7 @@ class _$_openAI implements _openAI {
 
   @override
   String toString() {
-    return 'Message.openAI(id: $id, content: $content, userId: $userId, conversationId: $conversationId, extra: $extra, createdAt: $createdAt)';
+    return 'Message.openAI(id: $id, replyTo: $replyTo, content: $content, userId: $userId, conversationId: $conversationId, extra: $extra, createdAt: $createdAt)';
   }
 
   @override
@@ -476,6 +497,7 @@ class _$_openAI implements _openAI {
         (other.runtimeType == runtimeType &&
             other is _$_openAI &&
             (identical(other.id, id) || other.id == id) &&
+            (identical(other.replyTo, replyTo) || other.replyTo == replyTo) &&
             (identical(other.content, content) || other.content == content) &&
             (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.conversationId, conversationId) ||
@@ -487,7 +509,7 @@ class _$_openAI implements _openAI {
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, id, content, userId,
+  int get hashCode => Object.hash(runtimeType, id, replyTo, content, userId,
       conversationId, const DeepCollectionEquality().hash(_extra), createdAt);
 
   @JsonKey(ignore: true)
@@ -502,11 +524,18 @@ class _$_openAI implements _openAI {
     required TResult Function(int? id, String content, String userId,
             int conversationId, DateTime createdAt)
         text,
-    required TResult Function(int? id, String content, String userId,
-            int conversationId, List<GPTResponse> extra, DateTime createdAt)
+    required TResult Function(
+            int? id,
+            int replyTo,
+            String content,
+            String userId,
+            int conversationId,
+            List<GPTResponse> extra,
+            DateTime createdAt)
         openAI,
   }) {
-    return openAI(id, content, userId, conversationId, extra, createdAt);
+    return openAI(
+        id, replyTo, content, userId, conversationId, extra, createdAt);
   }
 
   @override
@@ -515,11 +544,12 @@ class _$_openAI implements _openAI {
     TResult? Function(int? id, String content, String userId,
             int conversationId, DateTime createdAt)?
         text,
-    TResult? Function(int? id, String content, String userId,
+    TResult? Function(int? id, int replyTo, String content, String userId,
             int conversationId, List<GPTResponse> extra, DateTime createdAt)?
         openAI,
   }) {
-    return openAI?.call(id, content, userId, conversationId, extra, createdAt);
+    return openAI?.call(
+        id, replyTo, content, userId, conversationId, extra, createdAt);
   }
 
   @override
@@ -528,13 +558,14 @@ class _$_openAI implements _openAI {
     TResult Function(int? id, String content, String userId, int conversationId,
             DateTime createdAt)?
         text,
-    TResult Function(int? id, String content, String userId, int conversationId,
-            List<GPTResponse> extra, DateTime createdAt)?
+    TResult Function(int? id, int replyTo, String content, String userId,
+            int conversationId, List<GPTResponse> extra, DateTime createdAt)?
         openAI,
     required TResult orElse(),
   }) {
     if (openAI != null) {
-      return openAI(id, content, userId, conversationId, extra, createdAt);
+      return openAI(
+          id, replyTo, content, userId, conversationId, extra, createdAt);
     }
     return orElse();
   }
@@ -581,6 +612,7 @@ class _$_openAI implements _openAI {
 abstract class _openAI implements Message {
   factory _openAI(
       {final int? id,
+      required final int replyTo,
       required final String content,
       required final String userId,
       required final int conversationId,
@@ -591,6 +623,7 @@ abstract class _openAI implements Message {
 
   @override
   int? get id;
+  int get replyTo;
   @override
   String get content;
   @override

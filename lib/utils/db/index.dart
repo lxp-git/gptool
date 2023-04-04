@@ -29,6 +29,7 @@ class AppDatabase {
                 create table message (
                   id integer primary key autoincrement, 
                   content text,
+                  replyTo integer,
                   userId text,
                   conversationId integer,
                   extra text,

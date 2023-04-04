@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:gptool/models/conversation.dart';
 import 'package:gptool/utils/db/message.dart';
@@ -22,6 +23,7 @@ class Message with _$Message {
 
   factory Message.openAI(
       {int? id,
+      required int replyTo,
       required String content,
       required String userId,
       required int conversationId,
@@ -78,6 +80,7 @@ class Delta with _$Delta {
 
 @riverpod
 class CurrentConversationMessages extends _$CurrentConversationMessages {
+  final TextEditingController textEditingController = TextEditingController();
   @override
   List<Message> build() {
     return [];
@@ -109,23 +112,21 @@ class CurrentConversationMessages extends _$CurrentConversationMessages {
     });
     final conversationId = ref.read(currentConversationProvider).id!;
     print("conversationId:$conversationId");
-    state = [
-      ...state
-        ..insert(
-            0,
-            await MessageDBProvider().insert(Message.text(
-                content: content,
-                userId: "0",
-                conversationId: conversationId,
-                createdAt: DateTime.now())))
-    ];
+    final message = await MessageDBProvider().insert(Message.text(
+        content: content,
+        userId: "0",
+        conversationId: conversationId,
+        createdAt: DateTime.now()));
+    state = [...state..insert(0, message)];
     final responseMessage = await MessageDBProvider().insert(Message.openAI(
         content: "loading....",
         userId: "OpenAI",
+        replyTo: message.id!,
         extra: [GPTResponse()],
         conversationId: conversationId,
         createdAt: DateTime.now()));
     state = [responseMessage, ...state];
+    textEditingController.clear();
     request.headers.addAll({
       "Content-Type": "application/json",
       "Authorization": "Bearer ${KeyValueStoreHelper().secretKey}",
@@ -197,7 +198,12 @@ class CurrentConversationMessages extends _$CurrentConversationMessages {
     });
   }
 
-  updateMessage(String newMessage) {}
+  updateMessage(String newMessage, int editingMessageId) {
+    state = state
+        .map((e) =>
+            e.id == editingMessageId ? e.copyWith(content: newMessage) : e)
+        .toList();
+  }
 }
 
 // @riverpod

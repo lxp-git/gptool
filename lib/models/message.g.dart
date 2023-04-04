@@ -26,6 +26,7 @@ Map<String, dynamic> _$$_textToJson(_$_text instance) => <String, dynamic>{
 
 _$_openAI _$$_openAIFromJson(Map<String, dynamic> json) => _$_openAI(
       id: json['id'] as int?,
+      replyTo: json['replyTo'] as int,
       content: json['content'] as String,
       userId: json['userId'] as String,
       conversationId: json['conversationId'] as int,
@@ -38,6 +39,7 @@ _$_openAI _$$_openAIFromJson(Map<String, dynamic> json) => _$_openAI(
 
 Map<String, dynamic> _$$_openAIToJson(_$_openAI instance) => <String, dynamic>{
       'id': instance.id,
+      'replyTo': instance.replyTo,
       'content': instance.content,
       'userId': instance.userId,
       'conversationId': instance.conversationId,
@@ -128,7 +130,7 @@ Map<String, dynamic> _$$_DeltaToJson(_$_Delta instance) => <String, dynamic>{
 // **************************************************************************
 
 String _$currentConversationMessagesHash() =>
-    r'43c72690126a9c672eb6197a141f14d5f57d0d31';
+    r'7d181ac48bbd57869c26fcde31ec0ccbb3082b63';
 
 /// See also [CurrentConversationMessages].
 @ProviderFor(CurrentConversationMessages)

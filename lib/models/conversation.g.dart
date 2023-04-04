@@ -24,7 +24,7 @@ Map<String, dynamic> _$$_ConversationToJson(_$_Conversation instance) =>
 // RiverpodGenerator
 // **************************************************************************
 
-String _$conversationsHash() => r'bfa42e5240b31429a86fd515bf51a4214462db47';
+String _$conversationsHash() => r'2d27751c8088e8924bbacf398641e98569d03406';
 
 /// See also [Conversations].
 @ProviderFor(Conversations)
@@ -41,7 +41,7 @@ final conversationsProvider =
 
 typedef _$Conversations = AutoDisposeNotifier<List<Conversation>>;
 String _$currentConversationHash() =>
-    r'ae687ddfd6fc06e3a681e94cc043847acbc40ca8';
+    r'5d6745a40e3e6a83a220a43357d5ba4ebef29649';
 
 /// See also [CurrentConversation].
 @ProviderFor(CurrentConversation)

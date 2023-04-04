@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gptool/pages/home/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -72,11 +71,8 @@ class _GuidePageState extends State<GuidePage> {
                   onPressed: () {
                     KeyValueStoreHelper().secretKey =
                         _apiKeyTextEditingController.text;
-                    Navigator.of(context).pushReplacement(MaterialPageRoute(
-                      builder: (context) {
-                        return const MyHomePage();
-                      },
-                    ));
+                    Navigator.of(context)
+                        .pushNamedAndRemoveUntil("home", (route) => false);
                   },
                   child: const Text("Start"))
             ],
