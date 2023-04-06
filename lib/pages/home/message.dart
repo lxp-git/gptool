@@ -25,7 +25,13 @@ class _MessageItemState extends ConsumerState<MessageItem> {
                   maxLines: 5, minLines: 1, controller: editingController),
               Row(
                 children: [
-                  TextButton(onPressed: () {}, child: const Text("Save")),
+                  TextButton(
+                      onPressed: () {
+                        ref
+                            .read(currentConversationMessagesProvider.notifier)
+                            .updateMessage(editingController.text, message);
+                      },
+                      child: const Text("Save")),
                   TextButton(
                       onPressed: () {
                         setState(() {
@@ -43,15 +49,19 @@ class _MessageItemState extends ConsumerState<MessageItem> {
                 AdaptiveTextSelectionToolbar.buttonItems(
                   anchors: editableTextState.contextMenuAnchors,
                   buttonItems: <ContextMenuButtonItem>[
-                    ContextMenuButtonItem(
-                        onPressed: () {
-                          setState(() {
-                            editingController.text = message.content;
-                            editingMessageId = message.id;
-                          });
-                        },
-                        type: ContextMenuButtonType.custom,
-                        label: "Edit"),
+                    ...message.map(
+                        text: (value) => [
+                              ContextMenuButtonItem(
+                                  onPressed: () {
+                                    setState(() {
+                                      editingController.text = message.content;
+                                      editingMessageId = message.id;
+                                    });
+                                  },
+                                  type: ContextMenuButtonType.custom,
+                                  label: "Edit"),
+                            ],
+                        openAI: (value) => []),
                     ContextMenuButtonItem(
                       onPressed: () {
                         editableTextState
@@ -59,16 +69,21 @@ class _MessageItemState extends ConsumerState<MessageItem> {
                       },
                       type: ContextMenuButtonType.copy,
                     ),
-                    ContextMenuButtonItem(
-                        onPressed: () {
-                          ref
-                              .read(
-                                  currentConversationMessagesProvider.notifier)
-                              .updateMessage(
-                                  editingController.text, editingMessageId!);
-                        },
-                        type: ContextMenuButtonType.custom,
-                        label: "Delete"),
+                    ...message.map(
+                        text: (value) => [
+                              ContextMenuButtonItem(
+                                  onPressed: () {
+                                    ref
+                                        .read(
+                                            currentConversationMessagesProvider
+                                                .notifier)
+                                        .updateMessage(
+                                            editingController.text, message);
+                                  },
+                                  type: ContextMenuButtonType.custom,
+                                  label: "Delete")
+                            ],
+                        openAI: (value) => []),
                   ],
                 ),
             selectable: true,

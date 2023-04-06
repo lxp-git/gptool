@@ -68,10 +68,10 @@ class MessageDBProvider {
     });
   }
 
-  Future<int> delete(int id) async {
+  Future<int> deleteAfter(int id) async {
     return await AppDatabase()
         .db
-        .delete(table, where: '$id = ?', whereArgs: [id]);
+        .delete(table, where: 'id >= ?', whereArgs: [id]);
   }
 
   Future<int> update(Message message) async {

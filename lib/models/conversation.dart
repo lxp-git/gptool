@@ -2,6 +2,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:gptool/models/message.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../utils/db/conversation.dart';
+
 part 'conversation.g.dart';
 part 'conversation.freezed.dart';
 
@@ -25,8 +27,10 @@ class Conversations extends _$Conversations {
     return defaultConversations;
   }
 
-  void addConversation(Conversation conversation) {
-    state = [...state, conversation];
+  void addConversation() async {
+    final conversation = await ConversationDBProvider()
+        .insert(Conversation(title: "New Chat", createdAt: DateTime.now()));
+    state = [conversation, ...state];
   }
 }
 

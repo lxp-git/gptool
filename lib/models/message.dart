@@ -101,10 +101,13 @@ class CurrentConversationMessages extends _$CurrentConversationMessages {
     request.body = jsonEncode({
       "model": "gpt-3.5-turbo",
       "messages": [
-        ...messageList.map((e) {
+        ...messageList.reversed.map((e) {
           return e.map(
               text: (value) => {"role": "user", "content": e.content},
-              openAI: (value) => {"role": value, "content": e.content});
+              openAI: (value) => {
+                    "role": value.extra[0].choices![0].delta!.role,
+                    "content": e.content
+                  });
         }),
         {"role": "user", "content": content}
       ],
@@ -198,11 +201,10 @@ class CurrentConversationMessages extends _$CurrentConversationMessages {
     });
   }
 
-  updateMessage(String newMessage, int editingMessageId) {
-    state = state
-        .map((e) =>
-            e.id == editingMessageId ? e.copyWith(content: newMessage) : e)
-        .toList();
+  updateMessage(String newMessage, Message editingMessage) async {
+    await MessageDBProvider().deleteAfter(editingMessage.id!);
+    state = state.where((element) => element.id! < editingMessage.id!).toList();
+    sendMessage(newMessage);
   }
 }
 

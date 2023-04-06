@@ -205,32 +205,17 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
     // return showNavigationDrawer
     //     ? buildLargeScreenScaffold(context)
     //     : buildBottomBarScaffold();
+    const conversationBody = ConversationBody();
     return Scaffold(
-      drawer: showNavigationDrawer
-          ? null
-          : NavigationBar(
-              selectedIndex: screenIndex,
-              onDestinationSelected: (int index) {
-                setState(() {
-                  screenIndex = index;
-                });
-              },
-              destinations: destinations.map((ExampleDestination destination) {
-                return NavigationDestination(
-                  label: destination.label,
-                  icon: const Icon(Icons.message_outlined),
-                  selectedIcon: const Icon(Icons.message_rounded),
-                  tooltip: destination.label,
-                );
-              }).toList(),
-            ),
+      appBar: showNavigationDrawer ? null : AppBar(),
+      drawer: showNavigationDrawer ? null : conversationBody,
       body: showNavigationDrawer
           ? SafeArea(
               bottom: false,
               top: false,
               child: Row(
                 children: <Widget>[
-                  const ConversationBody(),
+                  conversationBody,
                   const VerticalDivider(thickness: 1, width: 1),
                   Expanded(
                     child: buildMessageList(),
