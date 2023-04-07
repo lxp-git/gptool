@@ -30,14 +30,13 @@ jobs:
           # cache-path: ${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch: # optional, change this to specify the cache path
           # architecture: x64 # optional, x64 or arm64
       - run: flutter pub get
-      - run: flutter build web
+      - run: flutter build web --base-href "/gptool/"
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          # Upload entire repository
-          path: "./build/web/*"
+          path: "./build/web/"
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
