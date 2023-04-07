@@ -51,7 +51,10 @@ dependencies:
 
 dependency_overrides:
   flutter_markdown:
-    path: ../packages/packages/flutter_markdown
+    git:
+      url: https://github.com/lxp-git/flutter-packages.git
+      ref: main
+      path: packages/flutter_markdown
 
 dev_dependencies:
   flutter_test:
