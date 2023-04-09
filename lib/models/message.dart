@@ -136,68 +136,66 @@ class CurrentConversationMessages extends _$CurrentConversationMessages {
       "Accept": "application/json; charset=utf-8"
     });
     String data = "";
-    request.send().then((value) async {
-      value.stream
-          .transform(utf8.decoder)
-          .transform(const LineSplitter())
-          .listen((dataLine) async {
-        print("dataLine:$dataLine");
-        if (dataLine.isEmpty) {
-          return;
-        }
-        Match match =
-            RegExp(r'^([^:]*)(?::)?(?: )?(.*)?$').firstMatch(dataLine)!;
-        var field = match.group(1);
-        if (field!.isEmpty) {
-          return;
-        }
-        var value = '';
-        if (field == 'data') {
-          value = dataLine.substring(
-            5,
-          );
-        } else {
-          value = match.group(2) ?? '';
-        }
-        switch (field) {
-          case 'event':
-            break;
-          case 'data':
-            if (value.contains('[DONE]')) {
-              await MessageDBProvider().update(state
-                  .firstWhere((element) => element.id == responseMessage.id));
-              return;
+    final responseStream = await request.send();
+    final lineStream = responseStream.stream
+        .transform(utf8.decoder)
+        .transform(const LineSplitter());
+    lineStream.listen((dataLine) async {
+      print("dataLine:$dataLine");
+      if (dataLine.isEmpty) {
+        return;
+      }
+      Match match = RegExp(r'^([^:]*)(?::)?(?: )?(.*)?$').firstMatch(dataLine)!;
+      var field = match.group(1);
+      if (field!.isEmpty) {
+        return;
+      }
+      var value = '';
+      if (field == 'data') {
+        value = dataLine.substring(
+          5,
+        );
+      } else {
+        value = match.group(2) ?? '';
+      }
+      switch (field) {
+        case 'event':
+          break;
+        case 'data':
+          if (value.contains('[DONE]')) {
+            await MessageDBProvider().update(state
+                .firstWhere((element) => element.id == responseMessage.id));
+            return;
+          }
+
+          final response = GPTResponse.fromJson(jsonDecode(value));
+          state = state.map((element) {
+            if (element.id == responseMessage.id) {
+              return element.map(
+                  text: (value) => value,
+                  openAI: (value) {
+                    String content = "";
+                    List<GPTResponse> extra = [];
+                    if (value.extra[0].id == null) {
+                      content = response.choices?[0].delta?.content ?? "";
+                      extra = [response];
+                    } else {
+                      content = value.content +
+                          (response.choices?[0].delta?.content ?? "");
+                      extra = [...value.extra, response];
+                    }
+                    return value.copyWith(content: content, extra: extra);
+                  });
             }
+            return element;
+          }).toList();
 
-            final response = GPTResponse.fromJson(jsonDecode(value));
-            state = state.map((element) {
-              if (element.id == responseMessage.id) {
-                return element.map(
-                    text: (value) => value,
-                    openAI: (value) {
-                      String content = "";
-                      List<GPTResponse> extra = [];
-                      if (value.extra[0].id == null) {
-                        content = response.choices?[0].delta?.content ?? "";
-                        extra = [response];
-                      } else {
-                        content = value.content +
-                            (response.choices?[0].delta?.content ?? "");
-                        extra = [...value.extra, response];
-                      }
-                      return value.copyWith(content: content, extra: extra);
-                    });
-              }
-              return element;
-            }).toList();
-
-            break;
-          case 'id':
-            break;
-          case 'retry':
-            break;
-        }
-      });
+          break;
+        case 'id':
+          break;
+        case 'retry':
+          break;
+      }
     });
   }
 

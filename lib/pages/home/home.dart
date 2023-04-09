@@ -5,25 +5,6 @@ import 'package:gptool/pages/conversation.dart';
 
 import 'message.dart';
 
-class ExampleDestination {
-  const ExampleDestination(this.label, this.icon, this.selectedIcon);
-
-  final String label;
-  final Widget icon;
-  final Widget selectedIcon;
-}
-
-const List<ExampleDestination> destinations = <ExampleDestination>[
-  ExampleDestination(
-      'page 0', Icon(Icons.widgets_outlined), Icon(Icons.widgets)),
-  ExampleDestination(
-      'page 1', Icon(Icons.format_paint_outlined), Icon(Icons.format_paint)),
-  ExampleDestination(
-      'page 2', Icon(Icons.text_snippet_outlined), Icon(Icons.text_snippet)),
-  ExampleDestination(
-      'page 3', Icon(Icons.invert_colors_on_outlined), Icon(Icons.opacity)),
-];
-
 class MyHomePage extends ConsumerStatefulWidget {
   const MyHomePage({super.key});
 
@@ -34,10 +15,11 @@ class MyHomePage extends ConsumerStatefulWidget {
 class _MyHomePageState extends ConsumerState<MyHomePage> {
   String _draft = "";
   TextEditingController editingController = TextEditingController();
-  // List<Message> _messageList = [];
 
   @override
-  void initState() {}
+  void initState() {
+    super.initState();
+  }
 
   _send() async {
     ref.read(currentConversationMessagesProvider.notifier).sendMessage(_draft);
@@ -53,83 +35,10 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
     showNavigationDrawer = MediaQuery.of(context).size.width >= 450;
   }
 
-  Widget buildBottomBarScaffold() {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            Text('Page Index =  $screenIndex'),
-          ],
-        ),
-      ),
-      drawer: NavigationBar(
-        selectedIndex: screenIndex,
-        onDestinationSelected: (int index) {
-          setState(() {
-            screenIndex = index;
-          });
-        },
-        destinations: destinations.map((ExampleDestination destination) {
-          return NavigationDestination(
-            label: destination.label,
-            icon: destination.icon,
-            selectedIcon: destination.selectedIcon,
-            tooltip: destination.label,
-          );
-        }).toList(),
-      ),
-    );
-  }
-
   void handleScreenChanged(int selectedScreen) {
     setState(() {
       screenIndex = selectedScreen;
     });
-  }
-
-  Widget buildLargeScreenScaffold(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        bottom: false,
-        top: false,
-        child: Row(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5),
-              child: NavigationRail(
-                minWidth: 50,
-                labelType: NavigationRailLabelType.all,
-                destinations:
-                    destinations.map((ExampleDestination destination) {
-                  return NavigationRailDestination(
-                    label: Text(destination.label),
-                    icon: destination.icon,
-                    selectedIcon: destination.selectedIcon,
-                  );
-                }).toList(),
-                selectedIndex: screenIndex,
-                useIndicator: true,
-                onDestinationSelected: (int index) {
-                  setState(() {
-                    screenIndex = index;
-                  });
-                },
-              ),
-            ),
-            const VerticalDivider(thickness: 1, width: 1),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  Text('Page Index =  $screenIndex'),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   Widget buildMessageList() {
@@ -187,7 +96,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
                     SizedBox(
                       height: 48,
                       child: IconButton(
-                        onPressed: _draft.isNotEmpty ? _send : null,
+                        onPressed: _draft.trim().isNotEmpty ? _send : null,
                         icon: const Icon(Icons.send),
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                       ),
@@ -202,9 +111,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // return showNavigationDrawer
-    //     ? buildLargeScreenScaffold(context)
-    //     : buildBottomBarScaffold();
     const conversationBody = ConversationBody();
     return Scaffold(
       appBar: showNavigationDrawer ? null : AppBar(),

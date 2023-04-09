@@ -14,7 +14,7 @@ class GuidePage extends StatefulWidget {
 class _GuidePageState extends State<GuidePage> {
   final TextEditingController _apiKeyTextEditingController =
       TextEditingController(text: KeyValueStoreHelper().secretKey);
-  final String _draft = "";
+  String _draft = "";
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +54,9 @@ class _GuidePageState extends State<GuidePage> {
                   Expanded(
                       child: TextField(
                     onChanged: (value) async {
+                      setState(() {
+                        _draft = value;
+                      });
                       final prefs = await SharedPreferences.getInstance();
                       await prefs.setString('SECRET_KEY', _draft);
                     },
@@ -68,12 +71,14 @@ class _GuidePageState extends State<GuidePage> {
                 ],
               ),
               TextButton(
-                  onPressed: () {
-                    KeyValueStoreHelper().secretKey =
-                        _apiKeyTextEditingController.text;
-                    Navigator.of(context)
-                        .pushNamedAndRemoveUntil("home", (route) => false);
-                  },
+                  onPressed: _draft.isEmpty
+                      ? null
+                      : () {
+                          KeyValueStoreHelper().secretKey =
+                              _apiKeyTextEditingController.text;
+                          Navigator.of(context).pushNamedAndRemoveUntil(
+                              "home", (route) => false);
+                        },
                   child: const Text("Start"))
             ],
           ),
