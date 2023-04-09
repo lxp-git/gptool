@@ -36,11 +36,11 @@ jobs:
             directory: ./build/windows/runner/Release/
           - os: macos-latest
             target: macos
-            file: gptool.app.zip
+            file: macos.app.zip
             directory: ./build/macos/Build/Products/Release/gptool.app
           - os: macos-latest
             target: ios --release --no-codesign
-            file: Runner.app.zip
+            file: ios.app.zip
             directory: ./build/ios/iphoneos/Runner.app
     steps:
       - if: ${{ startsWith(matrix.target, 'windows') }}
