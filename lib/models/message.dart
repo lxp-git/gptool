@@ -7,6 +7,7 @@ import 'package:gptool/utils/db/message.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:http/http.dart' as http;
 
+import '../utils/http/client.dart';
 import '../utils/key_value_store_helper.dart';
 
 part 'message.g.dart';
@@ -136,11 +137,11 @@ class CurrentConversationMessages extends _$CurrentConversationMessages {
       "Accept": "application/json; charset=utf-8"
     });
     String data = "";
-    final responseStream = await request.send();
+    final responseStream = await client.send(request);
     final lineStream = responseStream.stream
         .transform(utf8.decoder)
         .transform(const LineSplitter());
-    lineStream.listen((dataLine) async {
+    lineStream.listen((dataLine) {
       print("dataLine:$dataLine");
       if (dataLine.isEmpty) {
         return;
@@ -163,7 +164,7 @@ class CurrentConversationMessages extends _$CurrentConversationMessages {
           break;
         case 'data':
           if (value.contains('[DONE]')) {
-            await MessageDBProvider().update(state
+            MessageDBProvider().update(state
                 .firstWhere((element) => element.id == responseMessage.id));
             return;
           }

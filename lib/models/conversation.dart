@@ -31,6 +31,9 @@ class Conversations extends _$Conversations {
     final conversation = await ConversationDBProvider()
         .insert(Conversation(title: "New Chat", createdAt: DateTime.now()));
     state = [conversation, ...state];
+    ref
+        .read(currentConversationProvider.notifier)
+        .selectConversation(conversation);
   }
 }
 

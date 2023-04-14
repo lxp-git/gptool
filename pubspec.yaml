@@ -47,6 +47,7 @@ dependencies:
   freezed_annotation: ^2.2.0
   json_annotation: ^4.8.0
   json_serializable: ^6.6.1
+  fetch_client: ^1.0.0
 
 dependency_overrides:
   flutter_markdown:
