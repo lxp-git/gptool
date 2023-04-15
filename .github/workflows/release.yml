@@ -18,30 +18,43 @@ concurrency:
 jobs:
   release:
     name: Release build for ${{ matrix.target }}
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
           - os: ubuntu-latest
+            target: web --base-href "/gptool/"
+            file: gptool-web.zip
+            path: .
+            directory: ./build/web/
+          - os: ubuntu-latest
             target: apk --target-platform android-arm64 --split-per-abi
             file: app-arm64-v8a-release.apk
+            path: .
             directory: ./build/app/outputs/flutter-apk
           - os: ubuntu-latest
             target: linux
-            file: linux-x64.zip
+            file: gptool-linux-x64.zip
+            path: .
             directory: ./build/linux/x64/release/bundle/
           - os: windows-latest
             target: windows
-            file: windows.zip
+            file: gptool-windows.zip
+            path: .
             directory: ./build/windows/runner/Release/
           - os: macos-latest
             target: macos
-            file: macos.app.zip
-            directory: ./build/macos/Build/Products/Release/gptool.app
+            file: gptool-darwin-universal.zip
+            path: gptool.app
+            directory: ./build/macos/Build/Products/Release
           - os: macos-latest
             target: ios --release --no-codesign
-            file: ios.app.zip
-            directory: ./build/ios/iphoneos/Runner.app
+            file: gptool-ios.zip
+            path: Runner.app
+            directory: ./build/ios/iphoneos
     steps:
       - if: ${{ startsWith(matrix.target, 'windows') }}
         run: git config --system core.longpaths true
@@ -61,11 +74,26 @@ jobs:
           cache: true
           cache-key: "flutter-:os:-:channel:-:version:-:arch:-:hash:"
       - run: flutter build ${{ matrix.target }}
-      - if: ${{ matrix.directory }}
+
+      - if: ${{ startsWith(matrix.target, 'web') }}
+        name: Setup Pages
+        uses: actions/configure-pages@v3
+      - if: ${{ startsWith(matrix.target, 'web') }}
+        name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: "./build/web/"
+      - if: ${{ startsWith(matrix.target, 'web') }}
+        name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
+
+      - if: ${{ startsWith(matrix.target, 'apk') == false }}
         uses: thedoctor0/zip-release@0.7.1
         with:
           type: zip
           filename: ${{ matrix.file }}
+          path: ${{ matrix.path }}
           directory: ${{ matrix.directory }}
       - name: Publish
         uses: softprops/action-gh-release@v1
