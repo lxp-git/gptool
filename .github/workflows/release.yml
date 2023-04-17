@@ -95,6 +95,7 @@ jobs:
           filename: ${{ matrix.file }}
           path: ${{ matrix.path }}
           directory: ${{ matrix.directory }}
+          custom: -y
       - name: Publish
         uses: softprops/action-gh-release@v1
         with:
