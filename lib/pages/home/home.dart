@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gptool/models/conversation.dart';
 import 'package:gptool/models/message.dart';
 import 'package:gptool/pages/conversation.dart';
 
@@ -109,11 +110,49 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
     );
   }
 
+  buildAppBar() {
+    final conversations = ref.watch(conversationsProvider);
+    return (conversations.length > 1)
+        ? AppBar(actions: [
+            IconButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      actions: [
+                        TextButton(
+                            onPressed: () {
+                              Navigator.maybePop(context);
+                            },
+                            child: const Text("Cancel")),
+                        TextButton(
+                            onPressed: () {
+                              Navigator.maybePop(context);
+                              ref.read(conversationsProvider.notifier).delete(
+                                  ref.read(currentConversationProvider));
+                            },
+                            child: const Text("OK"))
+                      ],
+                      title: const Text("Delete this conversation?"),
+                      content: const Text(
+                          "The messages within this conversation will also be deleted."),
+                    );
+                  },
+                );
+              },
+              icon: const Icon(Icons.delete_forever_outlined),
+              // child: const Icon(Icons.delete_forever_outlined),
+            )
+          ])
+        : Container();
+  }
+
   @override
   Widget build(BuildContext context) {
     const conversationBody = ConversationBody();
     return Scaffold(
-      appBar: showNavigationDrawer ? null : AppBar(),
+      appBar: showNavigationDrawer ? null : buildAppBar(),
       drawer: showNavigationDrawer ? null : conversationBody,
       body: showNavigationDrawer
           ? SafeArea(
@@ -124,8 +163,12 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
                   conversationBody,
                   const VerticalDivider(thickness: 1, width: 1),
                   Expanded(
-                    child: buildMessageList(),
-                  ),
+                      child: Column(
+                    children: [
+                      buildAppBar(),
+                      Expanded(child: buildMessageList()),
+                    ],
+                  )),
                 ],
               ),
             )

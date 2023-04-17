@@ -1,12 +1,14 @@
+import 'package:gptool/utils/db/message.dart';
+
 import '../../models/conversation.dart';
 import 'index.dart';
-
-const String table = 'conversation';
 
 class ConversationDBProvider {
   static final ConversationDBProvider _instance =
       ConversationDBProvider._internal();
   ConversationDBProvider._internal();
+
+  static const String table = 'conversation';
 
   factory ConversationDBProvider() {
     return _instance;
@@ -33,10 +35,12 @@ class ConversationDBProvider {
     return maps.map((e) => Conversation.fromJson(e)).toList();
   }
 
-  Future<int> delete(int id) async {
-    return await AppDatabase()
-        .db
-        .delete(table, where: '$id = ?', whereArgs: [id]);
+  Future<List<Object?>> delete(int id) async {
+    final batch = AppDatabase().db.batch();
+    batch.delete(MessageDBProvider.table,
+        where: 'conversationId = ?', whereArgs: [id]);
+    batch.delete(table, where: 'id = ?', whereArgs: [id]);
+    return await batch.commit();
   }
 
   Future<int> update(Conversation conversation) async {

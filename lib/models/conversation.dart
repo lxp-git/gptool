@@ -35,6 +35,18 @@ class Conversations extends _$Conversations {
         .read(currentConversationProvider.notifier)
         .selectConversation(conversation);
   }
+
+  void delete(Conversation conversation) async {
+    if (state.length <= 1) {
+      return;
+    }
+    final results = await ConversationDBProvider().delete(conversation.id!);
+    state = state.where((element) => element.id == conversation.id).toList();
+
+    ref
+        .read(currentConversationProvider.notifier)
+        .selectConversation(state.first);
+  }
 }
 
 @riverpod

@@ -3,8 +3,6 @@ import 'dart:convert';
 import '../../models/message.dart';
 import 'index.dart';
 
-const String table = 'message';
-
 Map<String, Object?> removeRuntimeType(value) {
   final map = value.toJson();
   map.remove("runtimeType");
@@ -29,6 +27,7 @@ Message addRuntimeType(Map<String, Object?> json) {
 }
 
 class MessageDBProvider {
+  static const String table = 'message';
   static final MessageDBProvider _instance = MessageDBProvider._internal();
   MessageDBProvider._internal();
 
@@ -66,6 +65,12 @@ class MessageDBProvider {
     return List.generate(maps.length, (index) {
       return addRuntimeType(maps[index]);
     });
+  }
+
+  Future<int> delete(int id) async {
+    return await AppDatabase()
+        .db
+        .delete(table, where: 'id = ?', whereArgs: [id]);
   }
 
   Future<int> deleteAfter(int id) async {
