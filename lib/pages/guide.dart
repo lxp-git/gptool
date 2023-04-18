@@ -79,7 +79,7 @@ class _GuidePageState extends State<GuidePage> {
                           Navigator.of(context).pushNamedAndRemoveUntil(
                               "home", (route) => false);
                         },
-                  child: const Text("Start"))
+                  child: const Text("Get Started"))
             ],
           ),
         ),

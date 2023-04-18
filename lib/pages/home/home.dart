@@ -112,40 +112,40 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
 
   buildAppBar() {
     final conversations = ref.watch(conversationsProvider);
-    return (conversations.length > 1)
-        ? AppBar(actions: [
-            IconButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      actions: [
-                        TextButton(
-                            onPressed: () {
-                              Navigator.maybePop(context);
-                            },
-                            child: const Text("Cancel")),
-                        TextButton(
-                            onPressed: () {
-                              Navigator.maybePop(context);
-                              ref.read(conversationsProvider.notifier).delete(
-                                  ref.read(currentConversationProvider));
-                            },
-                            child: const Text("OK"))
-                      ],
-                      title: const Text("Delete this conversation?"),
-                      content: const Text(
-                          "The messages within this conversation will also be deleted."),
-                    );
-                  },
+    return AppBar(actions: [
+      if (conversations.length > 1)
+        IconButton(
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Navigator.maybePop(context);
+                        },
+                        child: const Text("Cancel")),
+                    TextButton(
+                        onPressed: () {
+                          Navigator.maybePop(context);
+                          ref
+                              .read(conversationsProvider.notifier)
+                              .delete(ref.read(currentConversationProvider));
+                        },
+                        child: const Text("OK"))
+                  ],
+                  title: const Text("Delete this conversation?"),
+                  content: const Text(
+                      "The messages within this conversation will also be deleted."),
                 );
               },
-              icon: const Icon(Icons.delete_forever_outlined),
-              // child: const Icon(Icons.delete_forever_outlined),
-            )
-          ])
-        : Container();
+            );
+          },
+          icon: const Icon(Icons.delete_forever_outlined),
+          // child: const Icon(Icons.delete_forever_outlined),
+        )
+    ]);
   }
 
   @override
