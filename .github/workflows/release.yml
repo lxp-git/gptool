@@ -88,6 +88,8 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v2
 
+      - if: ${{ startsWith(matrix.target, 'windows') }}
+        run: curl -LJO https://github.com/tekartik/sqflite/raw/master/sqflite_common_ffi/lib/src/windows/sqlite3.dll --output-dir ${{ matrix.directory }}
       - if: ${{ startsWith(matrix.target, 'apk') == false }}
         uses: thedoctor0/zip-release@0.7.1
         with:
