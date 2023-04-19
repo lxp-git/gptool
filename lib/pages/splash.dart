@@ -31,8 +31,9 @@ class _SplashPageState extends State<SplashPage> {
           (await MessageDBProvider().findAll(
                   conversationId: Conversations.defaultConversations.first.id))
               .isNotEmpty) {
-        Conversations.defaultConversations.add(await ConversationDBProvider()
-            .insert(
+        Conversations.defaultConversations.insert(
+            0,
+            await ConversationDBProvider().insert(
                 Conversation(title: "New Chat", createdAt: DateTime.now())));
       }
       if (KeyValueStoreHelper().secretKey != null &&

@@ -24,7 +24,7 @@ Map<String, dynamic> _$$_ConversationToJson(_$_Conversation instance) =>
 // RiverpodGenerator
 // **************************************************************************
 
-String _$conversationsHash() => r'2d27751c8088e8924bbacf398641e98569d03406';
+String _$conversationsHash() => r'da9d17e16163e2bbc8fd827c60ed761380defc43';
 
 /// See also [Conversations].
 @ProviderFor(Conversations)
@@ -41,12 +41,12 @@ final conversationsProvider =
 
 typedef _$Conversations = AutoDisposeNotifier<List<Conversation>>;
 String _$currentConversationHash() =>
-    r'5d6745a40e3e6a83a220a43357d5ba4ebef29649';
+    r'9b54980f94e5f15f0e70ddd8a883775887cb375f';
 
 /// See also [CurrentConversation].
 @ProviderFor(CurrentConversation)
 final currentConversationProvider =
-    AutoDisposeNotifierProvider<CurrentConversation, Conversation>.internal(
+    NotifierProvider<CurrentConversation, Conversation>.internal(
   CurrentConversation.new,
   name: r'currentConversationProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -56,5 +56,5 @@ final currentConversationProvider =
   allTransitiveDependencies: null,
 );
 
-typedef _$CurrentConversation = AutoDisposeNotifier<Conversation>;
+typedef _$CurrentConversation = Notifier<Conversation>;
 // ignore_for_file: unnecessary_raw_strings, subtype_of_sealed_class, invalid_use_of_internal_member, do_not_use_environment, prefer_const_constructors, public_member_api_docs, avoid_private_typedef_functions

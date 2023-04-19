@@ -49,7 +49,7 @@ class Conversations extends _$Conversations {
   }
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class CurrentConversation extends _$CurrentConversation {
   @override
   Conversation build() {
