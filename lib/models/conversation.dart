@@ -41,7 +41,7 @@ class Conversations extends _$Conversations {
       return;
     }
     final results = await ConversationDBProvider().delete(conversation.id!);
-    state = state.where((element) => element.id == conversation.id).toList();
+    state = state.where((element) => element.id != conversation.id).toList();
 
     ref
         .read(currentConversationProvider.notifier)
