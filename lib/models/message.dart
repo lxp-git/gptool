@@ -106,7 +106,7 @@ class CurrentConversationMessages extends _$CurrentConversationMessages {
           return e.map(
               text: (value) => {"role": "user", "content": e.content},
               openAI: (value) => {
-                    "role": value.extra[0].choices![0].delta!.role,
+                    "role": value.extra[0].choices?[0].delta?.role,
                     "content": e.content
                   });
         }),

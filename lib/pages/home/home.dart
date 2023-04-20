@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gptool/models/conversation.dart';
 import 'package:gptool/models/message.dart';
@@ -42,6 +43,22 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
     });
   }
 
+  late final _inputFocusNode = FocusNode(
+    onKey: (FocusNode node, RawKeyEvent evt) {
+      final pressEnterToSend = showNavigationDrawer;
+      if (pressEnterToSend &&
+          !evt.isShiftPressed &&
+          evt.logicalKey.keyLabel == 'Enter') {
+        if (evt is RawKeyDownEvent) {
+          _send();
+        }
+        return KeyEventResult.handled;
+      } else {
+        return KeyEventResult.ignored;
+      }
+    },
+  );
+
   Widget buildMessageList() {
     final messageList = ref.watch(currentConversationMessagesProvider);
     return Column(
@@ -82,8 +99,11 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
                       });
                     },
                     onSubmitted: (value) {
-                      _send();
+                      print("onSubmitted");
+                      // _send();
                     },
+                    textInputAction: TextInputAction.newline,
+                    focusNode: _inputFocusNode,
                     decoration: const InputDecoration(filled: true),
                     maxLines: 5,
                     minLines: 1,
