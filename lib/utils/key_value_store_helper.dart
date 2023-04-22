@@ -1,9 +1,11 @@
+import 'dart:convert';
+
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:gptool/models/export.dart' as models;
 
 class KeyValueStoreHelper {
-
   static final KeyValueStoreHelper _instance = KeyValueStoreHelper._internal();
-  SharedPreferences? _prefs;
+  late SharedPreferences _prefs;
 
   KeyValueStoreHelper._internal();
 
@@ -16,9 +18,23 @@ class KeyValueStoreHelper {
   }
 
   set secretKey(value) {
-    _prefs?.setString("SECRET_KEY", value);
+    _prefs.setString("SECRET_KEY", value);
   }
+
   String? get secretKey {
-    return _prefs?.getString("SECRET_KEY");
+    return _prefs.getString("SECRET_KEY");
+  }
+
+  set chatGPTNextWebConfiguration(models.ChatGPTNextWeb? value) {
+    _prefs.setString(
+        "CHAT_GPT_NEXT_WEB_CONFIGURATION", jsonEncode(value?.toJson()));
+  }
+
+  models.ChatGPTNextWeb? get chatGPTNextWebConfiguration {
+    String? d = _prefs.getString("CHAT_GPT_NEXT_WEB_CONFIGURATION");
+    if (d != null) {
+      return models.ChatGPTNextWeb.fromJson(jsonDecode(d));
+    }
+    return null;
   }
 }

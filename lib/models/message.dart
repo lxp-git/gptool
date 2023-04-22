@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:gptool/models/conversation.dart';
 import 'package:gptool/utils/db/message.dart';
+import 'package:gptool/utils/key_value_store_helper.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:http/http.dart' as http;
 
 import '../utils/http/client.dart';
-import '../utils/key_value_store_helper.dart';
 
 part 'message.g.dart';
 part 'message.freezed.dart';
@@ -95,54 +95,22 @@ class CurrentConversationMessages extends _$CurrentConversationMessages {
     state = messages;
   }
 
-  sendMessage(String content) async {
+  sendMessageByOpenAI(
+      String content, Message responseMessage, String body) async {
     final messageList = state;
     final request = http.Request(
         "POST", Uri.parse("https://api.openai.com/v1/chat/completions"));
-    request.body = jsonEncode({
-      "model": "gpt-3.5-turbo",
-      "messages": [
-        ...messageList.reversed.map((e) {
-          return e.map(
-              text: (value) => {"role": "user", "content": e.content},
-              openAI: (value) => {
-                    "role": value.extra[0].choices?[0].delta?.role,
-                    "content": e.content
-                  });
-        }),
-        {"role": "user", "content": content}
-      ],
-      "stream": true
-    });
-    final conversationId = ref.read(currentConversationProvider).id!;
-    print("conversationId:$conversationId");
-    final message = await MessageDBProvider().insert(Message.text(
-        content: content,
-        userId: "0",
-        conversationId: conversationId,
-        createdAt: DateTime.now()));
-    state = [...state..insert(0, message)];
-    final responseMessage = await MessageDBProvider().insert(Message.openAI(
-        content: "loading....",
-        userId: "OpenAI",
-        replyTo: message.id!,
-        extra: [GPTResponse()],
-        conversationId: conversationId,
-        createdAt: DateTime.now()));
-    state = [responseMessage, ...state];
-    textEditingController.clear();
+    request.body = body;
     request.headers.addAll({
       "Content-Type": "application/json",
       "Authorization": "Bearer ${KeyValueStoreHelper().secretKey}",
-      "Accept": "application/json; charset=utf-8"
     });
-    String data = "";
     final responseStream = await client.send(request);
     final lineStream = responseStream.stream
         .transform(utf8.decoder)
         .transform(const LineSplitter());
     lineStream.listen((dataLine) {
-      print("dataLine:$dataLine");
+      print("OpenAI dataLine:$dataLine");
       if (dataLine.isEmpty) {
         return;
       }
@@ -198,6 +166,104 @@ class CurrentConversationMessages extends _$CurrentConversationMessages {
           break;
       }
     });
+  }
+
+  sendMessageByChatGPTNextWeb(
+      String content, Message responseMessage, String body) async {
+    final messageList = state;
+    final chatGPTNextWebConfiguration =
+        KeyValueStoreHelper().chatGPTNextWebConfiguration!;
+    final request =
+        http.Request("POST", Uri.parse(chatGPTNextWebConfiguration.domain));
+    request.body = body;
+    request.headers.addAll({
+      "Content-Type": "application/json",
+      "access-code": chatGPTNextWebConfiguration.accessCode,
+      "path": chatGPTNextWebConfiguration.path,
+    });
+    final responseStream = await client.send(request);
+    final lineStream = responseStream.stream.transform(utf8.decoder);
+    lineStream.listen((dataLine) {
+      print("ChatGPTNextWeb dataLine:$dataLine");
+      if (dataLine.isEmpty) {
+        return;
+      }
+      state = state.map((element) {
+        if (element.id == responseMessage.id) {
+          return element.map(
+              text: (value) => value,
+              openAI: (value) {
+                String content = value.content;
+                List<GPTResponse> extra = [];
+                if (value.extra[0].choices == null) {
+                  content = dataLine;
+                } else {
+                  content += dataLine;
+                }
+                return value.copyWith(content: content, extra: [
+                  _GPTResponse(choices: [
+                    Choices(delta: Delta(role: "assistant", content: content))
+                  ])
+                ]);
+              });
+        }
+        return element;
+      }).toList();
+      MessageDBProvider().update(
+          state.firstWhere((element) => element.id == responseMessage.id));
+    });
+  }
+
+  sendMessage(String content) async {
+    final body = jsonEncode({
+      "model": "gpt-3.5-turbo",
+      "messages": [
+        ...state.reversed.map((e) {
+          return e.map(
+              text: (value) => {"role": "user", "content": e.content},
+              openAI: (value) => {
+                    "role": value.extra[0].choices?[0].delta?.role,
+                    "content": e.content
+                  });
+        }),
+        {"role": "user", "content": content}
+      ],
+      "stream": true,
+      "temperature": 1,
+      "presence_penalty": 0
+    });
+    final conversationId = ref.read(currentConversationProvider).id!;
+    final message = await MessageDBProvider().insert(Message.text(
+        content: content,
+        userId: "0",
+        conversationId: conversationId,
+        createdAt: DateTime.now()));
+    state = [...state..insert(0, message)];
+    String sendToUserId = "OpenAI";
+    if (KeyValueStoreHelper().secretKey != null &&
+        KeyValueStoreHelper().secretKey!.isNotEmpty) {
+      sendToUserId = "OpenAI";
+    } else if (KeyValueStoreHelper().secretKey?.isNotEmpty != null) {
+      sendToUserId = "ChatGPTNextWeb";
+    }
+    final responseMessage = await MessageDBProvider().insert(Message.openAI(
+        content: "loading....",
+        userId: sendToUserId,
+        replyTo: message.id!,
+        extra: [GPTResponse()],
+        conversationId: conversationId,
+        createdAt: DateTime.now()));
+    state = [responseMessage, ...state];
+    textEditingController.clear();
+
+    if (KeyValueStoreHelper().secretKey != null &&
+        KeyValueStoreHelper().secretKey!.isNotEmpty) {
+      sendMessageByOpenAI(content, responseMessage, body);
+    } else if (KeyValueStoreHelper().chatGPTNextWebConfiguration != null &&
+        KeyValueStoreHelper().chatGPTNextWebConfiguration!.domain.isNotEmpty) {
+      print("sendMessageByChatGPTNextWeb");
+      sendMessageByChatGPTNextWeb(content, responseMessage, body);
+    }
   }
 
   updateMessage(String newMessage, Message editingMessage) async {

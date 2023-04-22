@@ -6,7 +6,7 @@ import 'package:gptool/utils/key_value_store_helper.dart';
 import '../utils/db/conversation.dart';
 import '../utils/db/index.dart';
 import '../utils/db/message.dart';
-import 'guide.dart';
+import 'settings/guide.dart';
 import 'home/home.dart';
 
 class SplashPage extends StatefulWidget {
@@ -36,8 +36,12 @@ class _SplashPageState extends State<SplashPage> {
             await ConversationDBProvider().insert(
                 Conversation(title: "New Chat", createdAt: DateTime.now())));
       }
-      if (KeyValueStoreHelper().secretKey != null &&
-          KeyValueStoreHelper().secretKey!.isNotEmpty) {
+      if (KeyValueStoreHelper().secretKey?.isNotEmpty != null ||
+          KeyValueStoreHelper()
+                  .chatGPTNextWebConfiguration
+                  ?.domain
+                  .isNotEmpty !=
+              null) {
         Navigator.of(context).replace(
             newRoute: MaterialPageRoute(builder: (context) {
               return const MyHomePage();
