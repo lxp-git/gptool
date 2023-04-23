@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gptool/models/conversation.dart';
 import 'package:gptool/models/message.dart';
 import 'package:gptool/pages/conversation.dart';
@@ -143,12 +144,12 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
                   actions: [
                     TextButton(
                         onPressed: () {
-                          Navigator.maybePop(context);
+                          context.pop();
                         },
                         child: const Text("Cancel")),
                     TextButton(
                         onPressed: () {
-                          Navigator.maybePop(context);
+                          Navigator.pop(context);
                           ref
                               .read(conversationsProvider.notifier)
                               .delete(ref.read(currentConversationProvider));

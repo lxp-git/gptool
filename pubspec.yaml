@@ -48,6 +48,7 @@ dependencies:
   json_annotation: ^4.8.0
   json_serializable: ^6.6.1
   fetch_client: ^1.0.0
+  go_router: ^6.5.7
 
 dependency_overrides:
   flutter_markdown:

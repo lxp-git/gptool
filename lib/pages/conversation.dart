@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gptool/models/conversation.dart';
 
 class ConversationPage extends StatefulWidget {
@@ -84,8 +85,7 @@ class ConversationBody extends ConsumerWidget {
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
                 child: TextButton(
                   onPressed: () {
-                    Navigator.of(context)
-                        .pushNamedAndRemoveUntil("guide", (route) => false);
+                    context.go("/guide");
                   },
                   onLongPress: () {
                     print("onLongPress");
