@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gptool/models/conversation.dart';
 import 'package:gptool/utils/key_value_store_helper.dart';
 import 'package:gptool/models/export.dart' as models;
+import 'package:url_launcher/url_launcher.dart';
 
 import '../utils/db/conversation.dart';
 import '../utils/db/index.dart';
@@ -44,13 +45,19 @@ class _SplashPageState extends State<SplashPage> {
 
       if (widget.query != null) {
         final qrCode = Uri.splitQueryString(widget.query!);
-        print("qrCode:$qrCode");
         if (qrCode["domain"] != null &&
             qrCode["path"] != null &&
             qrCode["access-code"] != null) {
           qrCode["accessCode"] = qrCode["access-code"]!;
           KeyValueStoreHelper().chatGPTNextWebConfiguration =
               models.ChatGPTNextWeb.fromJson(qrCode);
+          launchUrl(
+              Uri(
+                  scheme: "gptool",
+                  host: "link",
+                  path: "/",
+                  queryParameters: {"qr": Uri.encodeComponent(widget.query!)}),
+              webOnlyWindowName: "_self");
         }
       }
       if (KeyValueStoreHelper().secretKey?.isNotEmpty != null ||

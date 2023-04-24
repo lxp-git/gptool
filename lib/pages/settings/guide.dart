@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -160,8 +161,7 @@ class _GuidePageState extends State<GuidePage> {
                   onPressed: () {
                     KeyValueStoreHelper().secretKey =
                         _apiKeyTextEditingController.text;
-                    Navigator.of(context)
-                        .pushNamedAndRemoveUntil("home", (route) => false);
+                    context.go("/home");
                   },
                   child: const Text("Get Started")),
               IconButton(
