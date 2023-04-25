@@ -271,6 +271,12 @@ class CurrentConversationMessages extends _$CurrentConversationMessages {
     state = state.where((element) => element.id! < editingMessage.id!).toList();
     sendMessage(newMessage);
   }
+
+  delete(Message editingMessage) async {
+    await MessageDBProvider().deleteAfter(editingMessage.id!);
+    state =
+        state.where((element) => element.id! <= editingMessage.id!).toList();
+  }
 }
 
 // @riverpod
