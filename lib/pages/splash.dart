@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -23,9 +24,6 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
-    if (widget.query != null) {
-      Uri.splitQueryString(widget.query!);
-    }
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
         systemNavigationBarColor: Colors.transparent));
@@ -51,13 +49,17 @@ class _SplashPageState extends State<SplashPage> {
           qrCode["accessCode"] = qrCode["access-code"]!;
           KeyValueStoreHelper().chatGPTNextWebConfiguration =
               models.ChatGPTNextWeb.fromJson(qrCode);
-          launchUrl(
-              Uri(
-                  scheme: "gptool",
-                  host: "link",
-                  path: "/",
-                  queryParameters: {"qr": Uri.encodeComponent(widget.query!)}),
-              webOnlyWindowName: "_self");
+          if (kIsWeb) {
+            launchUrl(
+                Uri(
+                    scheme: "gptool",
+                    host: "link",
+                    path: "/",
+                    queryParameters: {
+                      "qr": Uri.encodeComponent(widget.query!)
+                    }),
+                webOnlyWindowName: "_self");
+          }
         }
       }
       if (KeyValueStoreHelper().secretKey?.isNotEmpty != null ||

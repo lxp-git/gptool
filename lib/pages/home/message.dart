@@ -77,8 +77,7 @@ class _MessageItemState extends ConsumerState<MessageItem> {
                                         .read(
                                             currentConversationMessagesProvider
                                                 .notifier)
-                                        .updateMessage(
-                                            editingController.text, message);
+                                        .delete(message);
                                   },
                                   type: ContextMenuButtonType.custom,
                                   label: "Delete")
