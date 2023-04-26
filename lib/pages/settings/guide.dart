@@ -161,7 +161,7 @@ class _GuidePageState extends State<GuidePage> {
                   onPressed: () {
                     KeyValueStoreHelper().secretKey =
                         _apiKeyTextEditingController.text;
-                    context.go("/home");
+                    context.replace("/");
                   },
                   child: const Text("Get Started")),
               IconButton(
