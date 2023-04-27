@@ -33,6 +33,7 @@ class ConversationBody extends ConsumerWidget {
           ref
               .read(currentConversationProvider.notifier)
               .selectConversation(conversations[index]);
+          Scaffold.of(context).closeDrawer();
         },
         selectedIndex: selectedIndex,
         children: <Widget>[
@@ -47,6 +48,7 @@ class ConversationBody extends ConsumerWidget {
           TextButton(
             onPressed: () {
               ref.read(conversationsProvider.notifier).addConversation();
+              Scaffold.of(context).closeDrawer();
             },
             child: const ListTile(
               leading: Icon(Icons.add_outlined),

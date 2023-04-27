@@ -218,7 +218,11 @@ class CurrentConversationMessages extends _$CurrentConversationMessages {
     final body = jsonEncode({
       "model": "gpt-3.5-turbo",
       "messages": [
-        ...state.reversed.map((e) {
+        ...state.reversed
+            .where((element) => element.map(
+                text: (value) => true,
+                openAI: (value) => value.extra[0].choices != null))
+            .map((e) {
           return e.map(
               text: (value) => {"role": "user", "content": e.content},
               openAI: (value) => {
@@ -261,7 +265,6 @@ class CurrentConversationMessages extends _$CurrentConversationMessages {
       sendMessageByOpenAI(content, responseMessage, body);
     } else if (KeyValueStoreHelper().chatGPTNextWebConfiguration != null &&
         KeyValueStoreHelper().chatGPTNextWebConfiguration!.domain.isNotEmpty) {
-      print("sendMessageByChatGPTNextWeb");
       sendMessageByChatGPTNextWeb(content, responseMessage, body);
     }
   }
