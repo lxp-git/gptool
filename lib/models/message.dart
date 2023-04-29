@@ -97,75 +97,92 @@ class CurrentConversationMessages extends _$CurrentConversationMessages {
 
   sendMessageByOpenAI(
       String content, Message responseMessage, String body) async {
-    final messageList = state;
-    final request = http.Request(
-        "POST", Uri.parse("https://api.openai.com/v1/chat/completions"));
-    request.body = body;
-    request.headers.addAll({
-      "Content-Type": "application/json",
-      "Authorization": "Bearer ${KeyValueStoreHelper().secretKey}",
-    });
-    final responseStream = await client.send(request);
-    final lineStream = responseStream.stream
-        .transform(utf8.decoder)
-        .transform(const LineSplitter());
-    lineStream.listen((dataLine) {
-      print("OpenAI dataLine:$dataLine");
-      if (dataLine.isEmpty) {
-        return;
-      }
-      Match match = RegExp(r'^([^:]*)(?::)?(?: )?(.*)?$').firstMatch(dataLine)!;
-      var field = match.group(1);
-      if (field!.isEmpty) {
-        return;
-      }
-      var value = '';
-      if (field == 'data') {
-        value = dataLine.substring(
-          5,
-        );
-      } else {
-        value = match.group(2) ?? '';
-      }
-      switch (field) {
-        case 'event':
-          break;
-        case 'data':
-          if (value.contains('[DONE]')) {
-            MessageDBProvider().update(state
-                .firstWhere((element) => element.id == responseMessage.id));
-            return;
-          }
-
-          final response = GPTResponse.fromJson(jsonDecode(value));
-          state = state.map((element) {
-            if (element.id == responseMessage.id) {
-              return element.map(
-                  text: (value) => value,
-                  openAI: (value) {
-                    String content = "";
-                    List<GPTResponse> extra = [];
-                    if (value.extra[0].id == null) {
-                      content = response.choices?[0].delta?.content ?? "";
-                      extra = [response];
-                    } else {
-                      content = value.content +
-                          (response.choices?[0].delta?.content ?? "");
-                      extra = [...value.extra, response];
-                    }
-                    return value.copyWith(content: content, extra: extra);
-                  });
+    try {
+      final messageList = state;
+      final request = http.Request(
+          "POST", Uri.parse("https://api.openai.com/v1/chat/completions"));
+      request.body = body;
+      request.headers.addAll({
+        "Content-Type": "application/json",
+        "Authorization": "Bearer ${KeyValueStoreHelper().secretKey}",
+      });
+      final responseStream = await client.send(request);
+      final lineStream = responseStream.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter());
+      lineStream.listen((dataLine) {
+        print("OpenAI dataLine:$dataLine");
+        if (dataLine.isEmpty) {
+          return;
+        }
+        Match match =
+            RegExp(r'^([^:]*)(?::)?(?: )?(.*)?$').firstMatch(dataLine)!;
+        var field = match.group(1);
+        if (field!.isEmpty) {
+          return;
+        }
+        var value = '';
+        if (field == 'data') {
+          value = dataLine.substring(
+            5,
+          );
+        } else {
+          value = match.group(2) ?? '';
+        }
+        switch (field) {
+          case 'event':
+            break;
+          case 'data':
+            if (value.contains('[DONE]')) {
+              MessageDBProvider().update(state
+                  .firstWhere((element) => element.id == responseMessage.id));
+              return;
             }
-            return element;
-          }).toList();
 
-          break;
-        case 'id':
-          break;
-        case 'retry':
-          break;
-      }
-    });
+            final response = GPTResponse.fromJson(jsonDecode(value));
+            state = state.map((element) {
+              if (element.id == responseMessage.id) {
+                return element.map(
+                    text: (value) => value,
+                    openAI: (value) {
+                      String content = "";
+                      List<GPTResponse> extra = [];
+                      if (value.extra[0].id == null) {
+                        content = response.choices?[0].delta?.content ?? "";
+                        extra = [response];
+                      } else {
+                        content = value.content +
+                            (response.choices?[0].delta?.content ?? "");
+                        extra = [...value.extra, response];
+                      }
+                      return value.copyWith(content: content, extra: extra);
+                    });
+              }
+              return element;
+            }).toList();
+
+            break;
+          case 'id':
+            break;
+          case 'retry':
+            break;
+        }
+      });
+    } catch (e) {
+      state = state.map((element) {
+        if (element.id == responseMessage.id) {
+          return element.map(
+              text: (value) => value,
+              openAI: (value) {
+                return value.copyWith(content: "!$e");
+              });
+        }
+        return element;
+      }).toList();
+      MessageDBProvider().update(
+          state.firstWhere((element) => element.id == responseMessage.id));
+      print(e);
+    }
   }
 
   sendMessageByChatGPTNextWeb(
@@ -181,37 +198,68 @@ class CurrentConversationMessages extends _$CurrentConversationMessages {
       "access-code": chatGPTNextWebConfiguration.accessCode,
       "path": chatGPTNextWebConfiguration.path,
     });
-    final responseStream = await client.send(request);
-    final lineStream = responseStream.stream.transform(utf8.decoder);
-    lineStream.listen((dataLine) {
-      print("ChatGPTNextWeb dataLine:$dataLine");
-      if (dataLine.isEmpty) {
+    try {
+      final responseStream = await client.send(request);
+      if (responseStream.statusCode < 200 || responseStream.statusCode > 300) {
+        state = state.map((element) {
+          if (element.id == responseMessage.id) {
+            return element.map(
+                text: (value) => value,
+                openAI: (value) {
+                  return value.copyWith(
+                      content:
+                          "${responseStream.statusCode} error: ${responseStream.reasonPhrase!}, please check your configuration in settings");
+                });
+          }
+          return element;
+        }).toList();
+        MessageDBProvider().update(
+            state.firstWhere((element) => element.id == responseMessage.id));
         return;
       }
+      final lineStream = responseStream.stream.transform(utf8.decoder);
+      lineStream.listen((dataLine) {
+        if (dataLine.isEmpty) {
+          return;
+        }
+        state = state.map((element) {
+          if (element.id == responseMessage.id) {
+            return element.map(
+                text: (value) => value,
+                openAI: (value) {
+                  String content = value.content;
+                  if (value.extra[0].choices == null) {
+                    content = dataLine;
+                  } else {
+                    content += dataLine;
+                  }
+                  return value.copyWith(content: content, extra: [
+                    _GPTResponse(choices: [
+                      Choices(delta: Delta(role: "assistant", content: content))
+                    ])
+                  ]);
+                });
+          }
+          return element;
+        }).toList();
+        MessageDBProvider().update(
+            state.firstWhere((element) => element.id == responseMessage.id));
+      });
+    } catch (e) {
       state = state.map((element) {
         if (element.id == responseMessage.id) {
           return element.map(
               text: (value) => value,
               openAI: (value) {
-                String content = value.content;
-                List<GPTResponse> extra = [];
-                if (value.extra[0].choices == null) {
-                  content = dataLine;
-                } else {
-                  content += dataLine;
-                }
-                return value.copyWith(content: content, extra: [
-                  _GPTResponse(choices: [
-                    Choices(delta: Delta(role: "assistant", content: content))
-                  ])
-                ]);
+                return value.copyWith(content: "!$e");
               });
         }
         return element;
       }).toList();
       MessageDBProvider().update(
           state.firstWhere((element) => element.id == responseMessage.id));
-    });
+      print(e);
+    }
   }
 
   sendMessage(String content) async {

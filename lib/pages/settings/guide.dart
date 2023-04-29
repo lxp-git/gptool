@@ -16,7 +16,12 @@ class GuidePage extends StatefulWidget {
 class _GuidePageState extends State<GuidePage> {
   final TextEditingController _apiKeyTextEditingController =
       TextEditingController(text: KeyValueStoreHelper().secretKey);
-  String _draft = "";
+  String _apiKey = "";
+  String _domain =
+      KeyValueStoreHelper().chatGPTNextWebConfiguration?.domain ?? "";
+  String _path = KeyValueStoreHelper().chatGPTNextWebConfiguration?.path ?? "";
+  String _accessCode =
+      KeyValueStoreHelper().chatGPTNextWebConfiguration?.accessCode ?? "";
   String _mode = "ChatGPTNextWeb";
 
   final TextEditingController _domainTextEditingController =
@@ -30,6 +35,11 @@ class _GuidePageState extends State<GuidePage> {
           text: KeyValueStoreHelper().chatGPTNextWebConfiguration?.accessCode);
 
   _onChange(text) {
+    setState(() {
+      _domain = _domainTextEditingController.text;
+      _path = _pathTextEditingController.text;
+      _accessCode = _accessCodeTextEditingController.text;
+    });
     KeyValueStoreHelper().chatGPTNextWebConfiguration = models.ChatGPTNextWeb(
         domain: _domainTextEditingController.text,
         path: _pathTextEditingController.text,
@@ -138,11 +148,11 @@ class _GuidePageState extends State<GuidePage> {
                                 child: TextField(
                               onChanged: (value) async {
                                 setState(() {
-                                  _draft = value;
+                                  _apiKey = value;
                                 });
                                 final prefs =
                                     await SharedPreferences.getInstance();
-                                await prefs.setString('SECRET_KEY', _draft);
+                                await prefs.setString('SECRET_KEY', _apiKey);
                               },
                               controller: _apiKeyTextEditingController,
                               showCursor: true,
@@ -158,11 +168,17 @@ class _GuidePageState extends State<GuidePage> {
                     ),
               const SizedBox(height: 20),
               TextButton(
-                  onPressed: () {
-                    KeyValueStoreHelper().secretKey =
-                        _apiKeyTextEditingController.text;
-                    context.replace("/");
-                  },
+                  onPressed: ((_mode == "OpenAI" && _apiKey.isNotEmpty) ||
+                          (_mode == "ChatGPTNextWeb" &&
+                              _domain.isNotEmpty &&
+                              _path.isNotEmpty &&
+                              _accessCode.isNotEmpty))
+                      ? () {
+                          KeyValueStoreHelper().secretKey =
+                              _apiKeyTextEditingController.text;
+                          context.replace("/");
+                        }
+                      : null,
                   child: const Text("Get Started")),
               IconButton(
                   onPressed: () {
