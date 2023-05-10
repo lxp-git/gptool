@@ -77,7 +77,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
                   return const SizedBox(height: 16);
                 },
                 itemCount: messageList.length)),
-        const Divider(),
         SafeArea(
             minimum: const EdgeInsets.only(bottom: 16, top: 16),
             bottom: true,
@@ -182,7 +181,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
               child: Row(
                 children: <Widget>[
                   conversationBody,
-                  const VerticalDivider(thickness: 1, width: 1),
                   Expanded(
                       child: Column(
                     children: [
