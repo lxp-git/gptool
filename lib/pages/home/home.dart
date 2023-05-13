@@ -174,24 +174,29 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
     return Scaffold(
       appBar: showNavigationDrawer ? null : buildAppBar(),
       drawer: showNavigationDrawer ? null : conversationBody,
-      body: showNavigationDrawer
-          ? SafeArea(
-              bottom: false,
-              top: false,
-              child: Row(
-                children: <Widget>[
-                  conversationBody,
-                  Expanded(
-                      child: Column(
-                    children: [
-                      buildAppBar(),
-                      Expanded(child: buildMessageList()),
-                    ],
-                  )),
-                ],
-              ),
-            )
-          : buildMessageList(),
+      body: GestureDetector(
+        onTap: () {
+          ContextMenuController.removeAny();
+        },
+        child: showNavigationDrawer
+            ? SafeArea(
+                bottom: false,
+                top: false,
+                child: Row(
+                  children: <Widget>[
+                    conversationBody,
+                    Expanded(
+                        child: Column(
+                      children: [
+                        buildAppBar(),
+                        Expanded(child: buildMessageList()),
+                      ],
+                    )),
+                  ],
+                ),
+              )
+            : buildMessageList(),
+      ),
     );
   }
 }

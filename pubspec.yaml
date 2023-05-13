@@ -51,11 +51,6 @@ dependencies:
   go_router: ^6.5.7
 
 dependency_overrides:
-  flutter_markdown:
-    git:
-      url: https://github.com/lxp-git/flutter-packages.git
-      ref: main
-      path: packages/flutter_markdown
   fetch_client:
     git:
       url: https://github.com/lxp-git/dart_fetch_client.git

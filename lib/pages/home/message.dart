@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gptool/widgets/context_menu_region.dart';
 
 import '../../models/message.dart';
 import '../../utils/utils.dart';
@@ -17,37 +18,42 @@ class _MessageItemState extends ConsumerState<MessageItem> {
   int? editingMessageId;
   TextEditingController editingController = TextEditingController();
 
-  Widget markdown(Message message) {
+  Widget markdown(Message message, Decoration? decoration) {
     return editingMessageId == message.id
-        ? Column(
-            children: [
-              TextField(
-                  maxLines: 5, minLines: 1, controller: editingController),
-              Row(
-                children: [
-                  TextButton(
-                      onPressed: () {
-                        ref
-                            .read(currentConversationMessagesProvider.notifier)
-                            .updateMessage(editingController.text, message);
-                      },
-                      child: const Text("Save")),
-                  TextButton(
-                      onPressed: () {
-                        setState(() {
-                          editingMessageId = null;
-                        });
-                      },
-                      child: const Text("Cancel"))
-                ],
-              )
-            ],
-          )
-        : MarkdownBody(
-            data: message.content,
-            contextMenuBuilder: (context, editableTextState) =>
+        ? Container(
+            padding: const EdgeInsets.all(16),
+            decoration: decoration,
+            child: Column(
+              children: [
+                TextField(
+                    maxLines: 5, minLines: 1, controller: editingController),
+                Row(
+                  children: [
+                    TextButton(
+                        onPressed: () {
+                          ref
+                              .read(
+                                  currentConversationMessagesProvider.notifier)
+                              .updateMessage(editingController.text, message);
+                        },
+                        child: const Text("Save")),
+                    TextButton(
+                        onPressed: () {
+                          setState(() {
+                            editingMessageId = null;
+                          });
+                        },
+                        child: const Text("Cancel"))
+                  ],
+                )
+              ],
+            ))
+        : ContextMenuRegion(
+            contextMenuBuilder: (BuildContext context, Offset offset) =>
                 AdaptiveTextSelectionToolbar.buttonItems(
-                  anchors: editableTextState.contextMenuAnchors,
+                  anchors: TextSelectionToolbarAnchors(
+                    primaryAnchor: offset,
+                  ),
                   buttonItems: <ContextMenuButtonItem>[
                     ...message.map(
                         text: (value) => [
@@ -62,13 +68,6 @@ class _MessageItemState extends ConsumerState<MessageItem> {
                                   label: "Edit"),
                             ],
                         openAI: (value) => []),
-                    ContextMenuButtonItem(
-                      onPressed: () {
-                        editableTextState
-                            .copySelection(SelectionChangedCause.toolbar);
-                      },
-                      type: ContextMenuButtonType.copy,
-                    ),
                     ...message.map(
                         text: (value) => [
                               ContextMenuButtonItem(
@@ -85,8 +84,13 @@ class _MessageItemState extends ConsumerState<MessageItem> {
                         openAI: (value) => []),
                   ],
                 ),
-            selectable: true,
-            shrinkWrap: true);
+            child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: decoration,
+                child: MarkdownBody(
+                    data: message.content,
+                    selectable: true,
+                    shrinkWrap: true)));
   }
 
   @override
@@ -102,15 +106,14 @@ class _MessageItemState extends ConsumerState<MessageItem> {
                 Flexible(flex: 1, child: Container()),
                 Flexible(
                     flex: 4,
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
+                    child: markdown(
+                      message,
+                      BoxDecoration(
                           borderRadius:
                               const BorderRadius.all(Radius.circular(15))
                                   .copyWith(
                                       bottomRight: const Radius.circular(0)),
                           color: Theme.of(context).highlightColor),
-                      child: markdown(message),
                     ))
               ],
             )
@@ -118,15 +121,14 @@ class _MessageItemState extends ConsumerState<MessageItem> {
               children: [
                 Flexible(
                     flex: 4,
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
+                    child: markdown(
+                      message,
+                      BoxDecoration(
                           borderRadius:
                               const BorderRadius.all(Radius.circular(15))
                                   .copyWith(
                                       bottomLeft: const Radius.circular(0)),
                           color: Theme.of(context).highlightColor),
-                      child: markdown(message),
                     )),
                 Flexible(flex: 1, child: Container())
               ],

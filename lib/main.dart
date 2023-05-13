@@ -35,6 +35,11 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    // On web, disable the browser's context menu since this example uses a custom
+    // Flutter-rendered context menu.
+    if (kIsWeb) {
+      BrowserContextMenu.disableContextMenu();
+    }
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
         systemNavigationBarColor: Colors.transparent));
@@ -93,6 +98,14 @@ class _MyAppState extends State<MyApp> {
         }
       });
     });
+  }
+
+  @override
+  void dispose() {
+    if (kIsWeb) {
+      BrowserContextMenu.enableContextMenu();
+    }
+    super.dispose();
   }
 
   @override
